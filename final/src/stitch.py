@@ -110,7 +110,10 @@ def stich(imgdes,imgsrc,H):
 
 def panorama(pano,img,lenpano,a):
     #this function sorts and stitches multiple input images. It looks for the images having similar features and then stitches them together
-    sift = cv2.xfeatures2d.SIFT_create(nfeatures=1000)
+    if hasattr(cv2, 'SIFT_create'):
+        sift = cv2.SIFT_create(nfeatures=1000)
+    else:
+        sift = cv2.xfeatures2d.SIFT_create(nfeatures=1000)
     
     r=len(img)
     maxmat=0
@@ -139,9 +142,12 @@ def panorama(pano,img,lenpano,a):
             
     #if maximum matches are less than 10 and length of panorama is 1 then it will pick up next image to find the panorama       
     elif maxmat<10 and lenpano==1:
-        pano=img[a+1]
-        img.pop(a+1)
-        pano= panorama(pano,img,1,a+1)
+        if a + 1 < len(img):
+            pano = img[a + 1]
+            img.pop(a + 1)
+            pano = panorama(pano, img, 1, a + 1)
+        else:
+            return pano
     #if maximum amatches are less tha  10 and length of panorama is greater than 1 then it will return the panorama
     elif maxmat<10 and lenpano>1:
         return pano
